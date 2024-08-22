@@ -18,3 +18,5 @@ ENV NAME World
 
 # Run routes.py when the container launches
 CMD ["python", "routes.py"]
+
+## adding a cmd
