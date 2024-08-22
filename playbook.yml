@@ -37,18 +37,17 @@
         owner: ubuntu
         group: ubuntu
 
-- hosts: all
-  become: no
-  tasks:
     - name: Configure GitHub Actions runner
-      shell: ./config.sh --url https://github.com/manabpokhrel7/basic-flask-app --token APWOE625RYEFTYC4DNCHRJLGYYK5A
+      shell: ./config.sh --url https://github.com/manabpokhrel7/Ansible-CICD --token APWOE62C6EXC76B4K22PBPDGY5WFI
       args:
         chdir: /home/ubuntu/actions-runner/
         executable: /bin/bash
+      become: yes
 
     - name: Start GitHub Actions runner service
       shell: |
-        sudo ./run.sh
+        sudo ./svc.sh install
+        sudo ./svc.sh start
       args:
         chdir: /home/ubuntu/actions-runner/
         executable: /bin/bash
