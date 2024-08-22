@@ -1,0 +1,55 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Update apt repository and install dependencies
+      apt:
+        update_cache: yes
+        name:
+          - curl
+          - tar
+        state: present
+
+    - name: Create actions-runner directory
+      file:
+        path: /home/ubuntu/actions-runner
+        state: directory
+        mode: '0755'
+        owner: ubuntu
+        group: ubuntu
+
+    - name: Download GitHub Actions runner package
+      get_url:
+        url: https://github.com/actions/runner/releases/download/v2.319.1/actions-runner-linux-x64-2.319.1.tar.gz
+        dest: /home/ubuntu/actions-runner/actions-runner-linux-x64-2.319.1.tar.gz
+
+    - name: Validate the hash (optional but recommended)
+      shell: echo "3f6efb7488a183e291fc2c62876e14c9ee732864173734facc85a1bfb1744464  actions-runner-linux-x64-2.319.1.tar.gz" | shasum -a 256 -c
+      args:
+        chdir: /home/ubuntu/actions-runner/
+      ignore_errors: yes
+
+    - name: Extract GitHub Actions runner package
+      unarchive:
+        src: /home/ubuntu/actions-runner/actions-runner-linux-x64-2.319.1.tar.gz
+        dest: /home/ubuntu/actions-runner/
+        remote_src: yes
+        owner: ubuntu
+        group: ubuntu
+
+- hosts: all
+  become: no
+  tasks:
+    - name: Configure GitHub Actions runner
+      shell: ./config.sh --url https://github.com/manabpokhrel7/basic-flask-app --token APWOE625RYEFTYC4DNCHRJLGYYK5A
+      args:
+        chdir: /home/ubuntu/actions-runner/
+        executable: /bin/bash
+
+    - name: Start GitHub Actions runner service
+      shell: |
+        sudo ./run.sh
+      args:
+        chdir: /home/ubuntu/actions-runner/
+        executable: /bin/bash
+      become: yes
